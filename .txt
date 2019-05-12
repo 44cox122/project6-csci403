@@ -1,5 +1,12 @@
 /************ STEP # 1 *************/
-
+/* dropping */
+	Drop table if exists Artist cascading; 
+	Drop table if exists member_of cascading;
+	Drop table if exists Album cascading;
+	Drop table if exists Genre cascading;
+	Drop table if exists Track cascading;
+	Drop table if exists Label cascading;
+	
 /* Artist Table */
 	CREATE TABLE Artist(Artist_ID Serial Primary KEY, Artist_Name text, Artist_Type Text);
 /* Member_of */
