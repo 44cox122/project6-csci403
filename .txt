@@ -1,11 +1,11 @@
 /************ STEP # 1 *************/
 /* dropping */
-	Drop table if exists Artist cascading; 
-	Drop table if exists member_of cascading;
-	Drop table if exists Album cascading;
-	Drop table if exists Genre cascading;
-	Drop table if exists Track cascading;
-	Drop table if exists Label cascading;
+	Drop table if exists Artist cascade; 
+	Drop table if exists member_of cascade;
+	Drop table if exists Album cascade;
+	Drop table if exists Genre cascade;
+	Drop table if exists Track cascade;
+	Drop table if exists Label cascade;
 	
 /* Artist Table */
 	CREATE TABLE Artist(Artist_ID Serial Primary KEY, Artist_Name text, Artist_Type Text);
@@ -29,9 +29,6 @@
 	Alter Table Artist Add unique (Artist_name);
 	
   /************ STEP #2 *************/
-
-/* populating album */
-  Insert into album(artist, album_title, album_year) select distinct artist_id, album_title, album_year from artist, project6 where artist.artist_name = project6.artist_name order by album_year asc; 
 /* populating artist */
 	Insert into artist (artist_name, artist_type) Select distinct artist_name, artist_type from project6;
 	
@@ -51,10 +48,18 @@
 	
 	Update member_of set group_id = (select distinct artist_ID from artist where group_name = artist_name);
 
+/* populating album */
+  Insert into album(artist, album_title, album_year) select distinct artist_id, album_title, album_year from artist, project6 where artist.artist_name = project6.artist_name order by album_year asc; 
+  
 /* populating genre */
-
+	insert into genre (select distinct album_id from album order by album_id asc);
+	
 	/* this was done for each genre */
 	Update genre set electronica = 'electronica' where genre.album_id in (select distinct album.album_id from album where album_title in (select distinct album_title from project6 where genre = 'electronica'));
+	Update genre set jazz = 'jazz' where genre.album_id in (select distinct album.album_id from album where album_title in (select distinct album_title from project6 where genre = 'jazz'));
+	Update genre set country = 'country' where genre.album_id in (select distinct album.album_id from album where album_title in (select distinct album_title from project6 where genre = 'country'));
+	Update genre set rock = 'rock' where genre.album_id in (select distinct album.album_id from album where album_title in (select distinct album_title from project6 where genre = 'rock'));
+	Update genre set folk = 'folk' where genre.album_id in (select distinct album.album_id from album where album_title in (select distinct album_title from project6 where genre = 'folk'));
 
 /* populating track */
 	Insert into track(name, number, album_ID) select distinct track_name, track_number, album_id from project6, album where album.album_title = project6.album_title order by album_id, track_number asc;
