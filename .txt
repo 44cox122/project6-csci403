@@ -1,0 +1,86 @@
+/************ STEP # 1 *************/
+
+/* Artist Table */
+	CREATE TABLE Artist(Artist_ID Serial Primary KEY, Artist_Name text, Artist_Type Text);
+/* Member_of */
+	CREATE TABLE member_of(group_name text, Begin_Year numeric(4,0), End_Year numeric(4,0), member_ID integer REFERENCES Artist(Artist_ID), group_id integer References Artist(Artist_id));
+
+/* Album */
+	CREATE TABLE Album(artist integer REFERENCES ARTIST(ARTIST_ID), Album_ID Serial Primary Key, Album_Title text, Album_Year numeric(4,0));
+
+/* Album Genre */
+	/* The thinking here is to make each genre it's own column and if its that type it will say, otehrwise be null */
+	CREATE TABLE Genre(Album_ID integer REFERENCES Album(Album_ID), folk text, rock text, country text, jazz text, electronica text);
+
+/* Track */
+	CREATE TABLE track(Name text, Number text, Album_ID integer References Album(Album_ID), Primary Key (Name, Number));
+
+/* Label */
+	Create Table Label(Label_ID serial, Label_Name text, Label_Location text, Album_ID integer references Album(Album_ID), Primary Key(Label_ID));
+
+/* Altering tables after reading directions */
+	Alter Table Artist Add unique (Artist_name);
+	
+  /************ STEP #2 *************/
+
+/* populating album */
+  Insert into album(artist, album_title, album_year) select distinct artist_id, album_title, album_year from artist, project6 where artist.artist_name = project6.artist_name order by album_year asc; 
+/* populating artist */
+	Insert into artist (artist_name, artist_type) Select distinct artist_name, artist_type from project6;
+	
+	Insert into artist (artist_name, artist_type) select distinct project6.member_name, project6.artist_type from project6, artist where project6.artist_type 
+	= 'Person' and project6.artist_name != artist.artist_name and project6.artist_name != 'Chris Thile' and project6.artist_name != 'David Byrne' and project6.artist_name != 'Robert Plant';
+	
+	Insert into member_of(member_ID, begin_year, end_year) select distinct(artist_ID), member_begin_year, member_end_year from project6, artist where artist.artist_name = project6.member_name order by artist_ID asc;
+
+  Update artist set artist_type = 'person' where artist_name IN (select member_name from project6);
+
+/* populating member_of */
+	Insert into member_of(group_name, begin_year, end_year, member_id) select distinct project6.artist_name, member_begin_year,
+	member_end_year, members.artist_ID from project6, artist, artist AS groups, artist AS
+	members where groups.artist_name = project6.artist_name and members.artist_name = member_name;
+
+	/* updates members with group_id instead of group_name */
+	
+	Update member_of set group_id = (select distinct artist_ID from artist where group_name = artist_name);
+
+/* populating genre */
+
+	/* this was done for each genre */
+	Update genre set electronica = 'electronica' where genre.album_id in (select distinct album.album_id from album where album_title in (select distinct album_title from project6 where genre = 'electronica'));
+
+/* populating track */
+	Insert into track(name, number, album_ID) select distinct track_name, track_number, album_id from project6, album where album.album_title = project6.album_title order by album_id, track_number asc;
+
+/************ Step #3 *************/
+
+/* Select Statements */
+	
+	/* #1 */
+	Select artist_name, begin_year, end_year from artist, member_of where member_id = artist_id and group_id = (select artist_id from artist where artist_name = 'The Who') order by begin_year, artist_name;
+	
+	/* #2 */
+	Select artist_name from artist where artist_id in (select group_id from member_of where member_id = (select artist_id from artist where artist_name = 'Chris Thile'));
+	
+	/* #3 */
+	Select album_title, album_year, label_name from album, labelwhere album.album_ID = label.album_id and artist = (select artist_id from artist where artist_name = 'Talking Heads') order by album_year;
+	
+	/* #4 I know that this is not the best way to complete this, a union would work much better and more effectively but i ran out of time*/
+	Select distinct album_title, album_year, artist_name, label_name from label, album, artist where artist in (select artist_id from member_of where member_ID = (select artist_ID from artist where artist_name = 'Chris Thile')) and 
+	label.album_id in (select album_id from album where artist in (select artist_id from artist where artist_name = 'Chris Thile') or artist_id in (select group_id from member_of where member_id = (select artist_ID from artist where artist_name 
+	= 'Chris Thile'))) and album_title in (select album_title from album where artist in (select artist_id from artist where artist_name = 'Chris Thile' or artist_id in (select group_id from member_of where member_id = (select artist_ID from artist 
+	where artist_name = 'Chris Thile')))) and label.album_id = album.album_id order by album_year;
+
+	/* #5 */
+	Select distinct artist_name, album_title, album_year from artist, album, genre where artist_id = artist and album.album_ID in (select distinct album_id from genre where electronica is not null) order by album_year, artist_name;
+	
+	/* #6 */
+	Select name, number from track, album where track.album_id = album.album_id and artist = (select artist_id from artist where artist_name = 'Led Zeppelin') and album_title = 'Houses of the Holy' order by number asc;
+
+	/* #7 */
+	Select distinct folk, rock, country, jazz, electronica from genre where album_id in (select album_id from album where artist = (select artist_id from artist where artist_name = 'James Taylor'));
+	
+	/* #8 */
+	Select distinct artist_name, album_title, album_year, label_name from artist, label, album where label_location = 'Hollywood' and label.album_id = album.album_id and album.artist = artist_id;
+
+/************ OTHER *************/
