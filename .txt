@@ -20,7 +20,7 @@
 	CREATE TABLE Genre(Album_ID integer REFERENCES Album(Album_ID), folk text, rock text, country text, jazz text, electronica text);
 
 /* Track */
-	CREATE TABLE track(Name text, Number text, Album_ID integer References Album(Album_ID), Primary Key (Name, Number));
+	CREATE TABLE track(Name text, Number text, Album_ID integer References Album(Album_ID), Primary Key (Name, Number, Album_ID));
 
 /* Label */
 	Create Table Label(Label_ID serial, Label_Name text, Label_Location text, Album_ID integer references Album(Album_ID), Primary Key(Label_ID));
@@ -75,7 +75,7 @@
 	Select artist_name from artist where artist_id in (select group_id from member_of where member_id = (select artist_id from artist where artist_name = 'Chris Thile'));
 	
 	/* #3 */
-	Select album_title, album_year, label_name from album, labelwhere album.album_ID = label.album_id and artist = (select artist_id from artist where artist_name = 'Talking Heads') order by album_year;
+	Select album_title, album_year, label_name from album, label where album.album_ID = label.album_id and artist = (select artist_id from artist where artist_name = 'Talking Heads') order by album_year;
 	
 	/* #4 I know that this is not the best way to complete this, a union would work much better and more effectively but i ran out of time*/
 	Select distinct album_title, album_year, artist_name, label_name from label, album, artist where artist in (select artist_id from member_of where member_ID = (select artist_ID from artist where artist_name = 'Chris Thile')) and 
