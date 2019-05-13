@@ -56,6 +56,9 @@ artist_type from project6 where member_name NOT IN (select artist_name from arti
 
 /* populating track */
 	Insert into track(name, number, album_ID) select distinct track_name, track_number, album_id from project6, album where album.album_title = project6.album_title order by album_id, track_number asc;
+	
+/* populating label */
+	insert into label <label_name, label_location, album_id> select distinct label, headquarters, album_id from project6, album where project6.album_title = album.album_title;
 
 /* update */
 	Update artist set artist_type = 'person' where artist_name IN (select member_name from project6);
