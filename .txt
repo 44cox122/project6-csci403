@@ -9,6 +9,7 @@
 	
 /* Artist Table */
 	CREATE TABLE Artist(Artist_ID Serial Primary KEY, Artist_Name text, Artist_Type Text);
+	
 /* Member_of */
 	CREATE TABLE member_of(group_name text, Begin_Year numeric(4,0), End_Year numeric(4,0), member_ID integer REFERENCES Artist(Artist_ID), group_id integer References Artist(Artist_id));
 
@@ -30,14 +31,12 @@
 	
   /************ STEP #2 *************/
 /* populating artist */
-	Insert into artist (artist_name, artist_type) Select distinct artist_name, artist_type from project6;
-	
-	Insert into artist (artist_name, artist_type) select distinct project6.member_name, project6.artist_type from project6, artist where project6.artist_type 
-	= 'Person' and project6.artist_name != artist.artist_name and project6.artist_name != 'Chris Thile' and project6.artist_name != 'David Byrne' and project6.artist_name != 'Robert Plant';
-	
-	Insert into member_of(member_ID, begin_year, end_year) select distinct(artist_ID), member_begin_year, member_end_year from project6, artist where artist.artist_name = project6.member_name order by artist_ID asc;
+	Insert into artist (artist_name, artist_type) select distinct artist_name, artist_type from project6;
 
-  Update artist set artist_type = 'person' where artist_name IN (select member_name from project6);
+	Insert into artist (artist_name, artist_type) select distinct member_name, 
+artist_type from project6 where member_name != 'Chris Thile' and member_name != 'David Bryne' and member_name != 'Robert Plant' order bt member_name;
+
+	Insert into member_of(member_ID, begin_year, end_year) select distinct(artist_ID), member_begin_year, member_end_year from project6, artist where artist.artist_name = project6.member_name order by artist_ID asc;
 
 /* populating member_of */
 	Insert into member_of(group_name, begin_year, end_year, member_id) select distinct project6.artist_name, member_begin_year,
@@ -49,12 +48,11 @@
 	Update member_of set group_id = (select distinct artist_ID from artist where group_name = artist_name);
 
 /* populating album */
-  Insert into album(artist, album_title, album_year) select distinct artist_id, album_title, album_year from artist, project6 where artist.artist_name = project6.artist_name order by album_year asc; 
+	Insert into album(artist, album_title, album_year) select distinct artist_id, album_title, album_year from artist, project6 where artist.artist_name = project6.artist_name order by album_year asc; 
   
 /* populating genre */
 	insert into genre (select distinct album_id from album order by album_id asc);
 	
-	/* this was done for each genre */
 	Update genre set electronica = 'electronica' where genre.album_id in (select distinct album.album_id from album where album_title in (select distinct album_title from project6 where genre = 'electronica'));
 	Update genre set jazz = 'jazz' where genre.album_id in (select distinct album.album_id from album where album_title in (select distinct album_title from project6 where genre = 'jazz'));
 	Update genre set country = 'country' where genre.album_id in (select distinct album.album_id from album where album_title in (select distinct album_title from project6 where genre = 'country'));
@@ -63,6 +61,9 @@
 
 /* populating track */
 	Insert into track(name, number, album_ID) select distinct track_name, track_number, album_id from project6, album where album.album_title = project6.album_title order by album_id, track_number asc;
+
+/* update */
+	Update artist set artist_type = 'person' where artist_name IN (select member_name from project6);
 
 /************ Step #3 *************/
 
