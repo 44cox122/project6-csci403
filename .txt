@@ -34,9 +34,7 @@
 	Insert into artist (artist_name, artist_type) select distinct artist_name, artist_type from project6;
 
 	Insert into artist (artist_name, artist_type) select distinct member_name, 
-artist_type from project6 where member_name != 'Chris Thile' and member_name != 'David Bryne' and member_name != 'Robert Plant' order bt member_name;
-
-	Insert into member_of(member_ID, begin_year, end_year) select distinct(artist_ID), member_begin_year, member_end_year from project6, artist where artist.artist_name = project6.member_name order by artist_ID asc;
+artist_type from project6 where member_name NOT IN (select artist_name from artist);
 
 /* populating member_of */
 	Insert into member_of(group_name, begin_year, end_year, member_id) select distinct project6.artist_name, member_begin_year, member_end_year, members.artist_ID from project6, artist, artist AS groups, artist AS members where groups.artist_name = project6.artist_name and members.artist_name = project6.member_name;
