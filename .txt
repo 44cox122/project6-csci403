@@ -94,4 +94,4 @@ artist_type from project6 where member_name NOT IN (select artist_name from arti
 	/* #8 */
 	Select distinct artist_name, album_title, album_year, label_name from artist, label, album where label_location = 'Hollywood' and label.album_id = album.album_id and album.artist = artist_id;
 
-/************ OTHER *************/
+/************ <<<<<THE END>>>> (play starwars music) *************/
