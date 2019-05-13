@@ -88,9 +88,12 @@ artist_type from project6 where member_name NOT IN (select artist_name from arti
 	/* #6 */
 	Select name, number from track, album where track.album_id = album.album_id and artist = (select artist_id from artist where artist_name = 'Led Zeppelin') and album_title = 'Houses of the Holy' order by number asc;
 
-	/* #7 */
-	Select distinct folk, rock, country, jazz, electronica from genre where album_id in (select album_id from album where artist = (select artist_id from artist where artist_name = 'James Taylor'));
-	
+	/* #7  NOTE: THERE ARE TWO VERSIONS OF THIS TABLE!! */
+	Select distinct folk, rock, country, jazz, electronica from genre where album_id in (select album_id from album where artist = (select artist_id from artist where artist_name = 'James Taylor')) group by folk, rock, country, jazz, electronica;
+
+	/*  NOTE: #7 in a seperate way (this way gives it in better form) */
+	Select distinct CONCAT(folk, rock, country, jazz, electronica) AS genre from genre where album_id in (select album_id from album where artist = (select artist_id from artist where artist_name = 'James Taylor')) group by folk, rock, country, jazz, electronica;
+
 	/* #8 */
 	Select distinct artist_name, album_title, album_year, label_name from artist, label, album where label_location = 'Hollywood' and label.album_id = album.album_id and album.artist = artist_id;
 
